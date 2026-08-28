@@ -1,0 +1,4 @@
+# ~/.codex/config.toml に追記する。モデル名は README の置換表に合わせて変更する。
+[agents]
+default_subagent_model = "gpt-5.6-terra"
+default_subagent_reasoning_effort = "high"
