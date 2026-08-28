@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>codex-subagent-routing</title>
+<meta name="description" content="Codex のサブエージェントを安いモデルから始めて必要なときだけ昇格させる AGENTS.md 規範。何ができて、どう変わるかの説明。">
+<style>
+  :root{
+    --bg:#fafaf9;--bg-2:#f2f1ef;--fg:#1c1917;--fg-2:#57534e;--line:#e4e2de;
+    --accent:#0f6b4f;--accent-soft:#e3f1ea;--mono:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --radius:10px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#141413;--bg-2:#1d1c1a;--fg:#ecebe8;--fg-2:#a8a49d;--line:#2c2a27;--accent:#5fc49b;--accent-soft:#16302a}
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.75;font-size:16px;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent}
+  a:hover{border-bottom-color:currentColor}
+  code{font-family:var(--mono);font-size:.88em;background:var(--bg-2);padding:.1em .4em;border-radius:5px}
+  pre{font-family:var(--mono);font-size:.85rem;background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius);padding:1rem 1.25rem;overflow-x:auto;line-height:1.6}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 1.25rem}
+  header{border-bottom:1px solid var(--line)}
+  .nav{height:64px;display:flex;align-items:center;justify-content:space-between}
+  .nav .brand{font-family:var(--mono);font-size:.95rem;color:var(--fg)}
+  .nav a.repo{font-size:.9rem}
+  section{padding:4.5rem 0;border-bottom:1px solid var(--line)}
+  section:last-of-type{border-bottom:0}
+  h1{font-size:clamp(1.9rem,4.2vw,3rem);line-height:1.2;letter-spacing:-.02em;font-weight:700;max-width:22ch}
+  h2{font-size:clamp(1.4rem,2.6vw,1.9rem);line-height:1.3;letter-spacing:-.01em;font-weight:700;margin-bottom:1.25rem}
+  h3{font-size:1.05rem;font-weight:700;margin-bottom:.4rem}
+  p{color:var(--fg-2);max-width:65ch}
+  p strong{color:var(--fg)}
+  .hero{padding:4rem 0 4.5rem}
+  .hero .grid{display:grid;grid-template-columns:1.3fr 1fr;gap:3rem;align-items:center}
+  .hero p.lead{font-size:1.1rem;margin:1.25rem 0 1.75rem}
+  .cta{display:inline-flex;align-items:center;gap:.5rem;background:var(--accent);color:var(--bg);padding:.7rem 1.2rem;border-radius:999px;font-weight:600;border:0;transition:transform .15s ease}
+  .cta:hover{border-bottom-color:transparent}
+  .cta:active{transform:scale(.98)}
+  .cta-sub{display:block;margin-top:.75rem;font-size:.85rem;color:var(--fg-2);font-family:var(--mono);overflow-wrap:anywhere}
+  .flow{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius);padding:1.25rem;font-family:var(--mono);font-size:.82rem;line-height:1.6}
+  .flow .row{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;padding:.45rem 0}
+  .flow .row+.row{border-top:1px dashed var(--line)}
+  .flow .box{padding:.3rem .6rem;border-radius:6px;border:1px solid var(--line);background:var(--bg);white-space:nowrap}
+  .flow .box.hi{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+  .flow .arrow{color:var(--fg-2)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:2rem}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1.5rem}
+  .compare>div{border:1px solid var(--line);border-radius:var(--radius);padding:1.5rem;background:var(--bg)}
+  .compare>div.after{border-color:var(--accent);background:var(--accent-soft)}
+  .compare h3{font-family:var(--mono);font-size:.85rem;font-weight:600;color:var(--fg-2);margin-bottom:1rem}
+  .compare .after h3{color:var(--accent)}
+  .compare ul{list-style:none}
+  .compare li{padding:.4rem 0;border-top:1px solid var(--line)}
+  .compare .after li{border-top-color:rgba(127,127,127,.25)}
+  .compare li:first-child{border-top:0}
+  table{width:100%;border-collapse:collapse;font-size:.95rem;margin-top:1rem}
+  th,td{text-align:left;padding:.75rem .5rem;vertical-align:top}
+  th{font-size:.8rem;color:var(--fg-2);font-weight:600;border-bottom:1px solid var(--line)}
+  tbody tr+tr td{border-top:1px solid var(--line)}
+  td code{white-space:nowrap}
+  .rules{display:grid;grid-template-columns:repeat(2,1fr);gap:1.25rem 2.5rem;margin-top:1.5rem}
+  .rules .r{padding-left:1rem;border-left:2px solid var(--line)}
+  .rules .r.key{border-left-color:var(--accent)}
+  .rules .r p{font-size:.95rem}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin:1.5rem 0}
+  .stat .n{font-family:var(--mono);font-size:2.2rem;font-weight:600;letter-spacing:-.02em;line-height:1.1}
+  .stat .l{font-size:.9rem;color:var(--fg-2);margin-top:.3rem}
+  .steps{counter-reset:s;list-style:none;margin-top:1.5rem;max-width:720px}
+  .steps li{counter-increment:s;display:grid;grid-template-columns:2.5rem 1fr;gap:1rem;padding:1.1rem 0}
+  .steps li+li{border-top:1px solid var(--line)}
+  .steps li::before{content:counter(s);font-family:var(--mono);color:var(--accent);font-weight:600;font-size:1.1rem;line-height:1.5}
+  .steps p{font-size:.95rem}
+  .notes{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem 2.5rem;margin-top:1.5rem}
+  .notes p{font-size:.95rem}
+  footer{padding:2.5rem 0;color:var(--fg-2);font-size:.9rem;display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;border-top:1px solid var(--line)}
+  footer a{overflow-wrap:anywhere}
+  .grid>*,.two>*,.compare>*,.rules>*,.notes>*,.stats>*,.steps li>*{min-width:0}
+  @media (max-width:768px){
+    section{padding:3rem 0}
+    .hero .grid,.two,.compare,.rules,.notes{grid-template-columns:1fr}
+    .stats{grid-template-columns:1fr 1fr}
+    .flow .box{white-space:normal}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap nav">
+    <span class="brand">codex-subagent-routing</span>
+    <a class="repo" href="https://github.com/yuyatakahashi82-gif/codex-subagent-routing">GitHub で見る</a>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="wrap grid">
+    <div>
+      <h1>Codex のサブエージェントを、安いモデルから始めて必要なときだけ昇格させる</h1>
+      <p class="lead">AGENTS.md に貼る1節と config の3行で、子エージェントが親の高価なモデルを黙って引き継ぐ構造を止めます。検収も実装者とは別のエージェントに担わせます。</p>
+      <a class="cta" href="https://github.com/yuyatakahashi82-gif/codex-subagent-routing">リポジトリを開く</a>
+      <span class="cta-sub">github.com/yuyatakahashi82-gif/codex-subagent-routing</span>
+    </div>
+    <div class="flow" aria-label="ルーティングの流れ">
+      <div class="row"><span class="box">親 sol / ultra</span><span class="arrow">→</span><span class="box hi">整形・検索</span><span class="arrow">→</span><span class="box">terra / medium</span></div>
+      <div class="row"><span class="box">親 sol / ultra</span><span class="arrow">→</span><span class="box hi">調査・実装</span><span class="arrow">→</span><span class="box">terra / high</span></div>
+      <div class="row"><span class="box">失敗1回</span><span class="arrow">→</span><span class="box hi">再試行</span><span class="arrow">→</span><span class="box">sol / high</span></div>
+      <div class="row"><span class="box">完了報告前</span><span class="arrow">→</span><span class="box hi">検収 (別エージェント)</span><span class="arrow">→</span><span class="box">terra / high</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>何が変わるか</h2>
+    <p>Codex は既定で、サブエージェントに親と同じモデルと推論強度を継承させます。親を上位モデルで回していると、整形や検索のような軽い仕事まで最高単価で走ります。この規範は起動時にモデル指定を義務化し、タスクの重さに応じた層へ落とします。</p>
+    <div class="compare">
+      <div>
+        <h3>導入前</h3>
+        <ul>
+          <li>子は親の <code>sol / xhigh</code> を暗黙継承</li>
+          <li>反復QAが最上位モデルに固定化（8月実測: ultra 宣言81件のほぼ全てが同一案件）</li>
+          <li>実装した本人が自分の成果物を検収して完了扱い</li>
+          <li>何がどのモデルで走ったか、後から追えない</li>
+        </ul>
+      </div>
+      <div class="after">
+        <h3>導入後</h3>
+        <ul>
+          <li>子は既定で <code>terra / high</code>。軽量作業は <code>terra / medium</code></li>
+          <li>昇格は失敗1件につき再試行1回まで。解決したら元の層へ戻る</li>
+          <li>完了報告前に文脈を継がない検収エージェントが必ず1本立つ</li>
+          <li>起動ごとに <code>routing:</code> 宣言が残り、ログから集計できる</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap two">
+    <div>
+      <h2>仕組み</h2>
+      <p>機構はコードではなく文章です。Codex が全セッションで読む <code>~/.codex/AGENTS.md</code> に、ルーティング表と運用ルール8条を置きます。あわせて <code>config.toml</code> の <code>[agents]</code> に子の既定モデルを設定し、規範が指定を漏らしたときの床にします。</p>
+      <p style="margin-top:1rem">起動直前には必ず次の1行を出させます。これが監査の一次資料になります。</p>
+      <pre>routing: CSVパーサ実装 → gpt-5.6-terra/high — 通常の実装作業のため</pre>
+    </div>
+    <div>
+      <table>
+        <thead><tr><th>タスク種別</th><th>モデル / 推論強度</th></tr></thead>
+        <tbody>
+          <tr><td>軽量・定型（整形、単純検索、機械的変換）</td><td><code>terra / medium</code></td></tr>
+          <tr><td>調査・実装（通常の開発作業）</td><td><code>terra / high</code></td></tr>
+          <tr><td>難所、または一度失敗した再試行</td><td><code>sol / high</code></td></tr>
+          <tr><td>高リスクな設計判断・最終ゲート</td><td><code>sol / ultra</code></td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:1rem;font-size:.9rem">モデル名は作成者のプランに合わせた表記です。README の置換表で自分の環境に合わせます。</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>運用ルール8条の要旨</h2>
+    <p>全文は <code>ROUTING.md</code> にあります。6〜8 は Codex 自身に3巡検収させた文言で、削ると抜け道ができます。</p>
+    <div class="rules">
+      <div class="r"><h3>1. 明示指定の義務</h3><p>サブエージェント起動時は必ずモデルと推論強度を指定する。暗黙継承での起動は禁止。</p></div>
+      <div class="r"><h3>2. routing 宣言</h3><p>起動1件につき1行、タスク・モデル・理由を応答本文に出す。省略不可。</p></div>
+      <div class="r"><h3>3〜5. 昇格条件と並列数</h3><p>最初から上位モデルを選べるのは表の条件に該当する時だけ。並列は必要最小限。</p></div>
+      <div class="r key"><h3>6. 昇格を粘着させない</h3><p>失敗1件につき初回再試行と再検証1回まで。タスク名やサイクル番号を変えても新イベント扱いにしない。</p></div>
+      <div class="r key"><h3>7. ultra の反復利用を制限</h3><p>単発の高リスク判断か実際の最終ゲートに限る。同種タスクが2回連続 PASS したら降格。</p></div>
+      <div class="r key"><h3>8. 検収は別エージェント</h3><p>完了報告の前に <code>fork_turns="none"</code> の検収専用エージェントを立て、全項目 PASS のときだけ完了とする。</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>実測</h2>
+    <p>作成者の環境で 2026年8月の rollout ログを集計した値です。監査スクリプト <code>audit.py</code> で再現できます。</p>
+    <div class="stats">
+      <div class="stat"><div class="n">274</div><div class="l">8月のサブエージェント起動数</div></div>
+      <div class="stat"><div class="n">100%</div><div class="l">規範導入後、Codex アプリでの明示指定率（182 / 182）</div></div>
+      <div class="stat"><div class="n">88</div><div class="l">親継承だった件数。全て旧 CLI 0.145 由来</div></div>
+    </div>
+    <p>CLI 0.145 の <code>spawn_agent</code> にはモデル引数が無く、宣言しても子は親を継承していました。0.150 で引数が追加され、config の <code>[agents]</code> 既定値と合わせて CLI でも子が <code>terra / high</code> で走ることを確認しています。</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>導入</h2>
+    <p>前提: Codex 0.150 以降（アプリは同梱、CLI は <code>npm i -g @openai/codex@latest</code>）。</p>
+    <ol class="steps">
+      <li><div><h3>モデル名を置換する</h3><p><code>ROUTING.md</code> 内の <code>gpt-5.6-terra</code>（3箇所）と <code>gpt-5.6-sol</code>（6箇所）を自分のプランのモデルに変える。</p></div></li>
+      <li><div><h3>AGENTS.md に追記する</h3><p>置換済みの内容を <code>~/.codex/AGENTS.md</code> の末尾に貼る。無ければ新規作成。</p></div></li>
+      <li><div><h3>config に既定値を入れる</h3><p><code>config.snippet.toml</code> の <code>[agents]</code> 2キーを <code>~/.codex/config.toml</code> に追加する。既存の <code>[agents]</code> があればその中に足す。</p></div></li>
+      <li><div><h3>効いているか確認する</h3><p>サブエージェントを使うタスクを数回走らせ、<code>python3 audit.py</code> で明示指定率を見る。全件「親を継承」なら AGENTS.md が読まれていない。</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>知っておくこと</h2>
+    <div class="notes">
+      <div><h3>文章で制御している</h3><p>hook による強制は Codex 側の trust 承認が要り、未承認 hook は無音で飛ばされます。遵守の一次資料は rollout ログです。</p></div>
+      <div><h3>AGENTS.md は短く保つ</h3><p>規則が増えるほど1条あたりの遵守率が下がります。この節は約24行。全体で100行程度に収めることを勧めます。</p></div>
+      <div><h3>親を high にすれば済む話ではない</h3><p>親の推論強度を下げると委譲せず自分で片付ける傾向が出ます。オーケストレーションさせたいなら親は上位のまま、子を規範で落とす方が筋です。</p></div>
+      <div><h3>検収の分離が本命</h3><p>コスト削減は入口で、ルール8の「実装者と検収者を分ける」構造が品質面の効きどころです。</p></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="wrap">
+  <span>codex-subagent-routing</span>
+  <a href="https://github.com/yuyatakahashi82-gif/codex-subagent-routing">github.com/yuyatakahashi82-gif/codex-subagent-routing</a>
+</footer>
+</body>
+</html>
