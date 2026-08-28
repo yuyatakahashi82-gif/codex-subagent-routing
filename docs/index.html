@@ -77,12 +77,20 @@
   .steps p{font-size:.95rem}
   .notes{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem 2.5rem;margin-top:1.5rem}
   .notes p{font-size:.95rem}
+  .picker{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;align-items:center;margin-top:1.5rem}
+  .picker figure{margin:0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:#141413}
+  .picker img{display:block;width:100%;height:auto;max-width:100%}
+  .picker figcaption{font-size:.85rem;color:var(--fg-2);padding:.6rem .9rem;border-top:1px solid var(--line);background:var(--bg-2)}
+  .picker ul{list-style:none;margin-top:.75rem}
+  .picker li{padding:.5rem 0;border-top:1px solid var(--line);font-size:.95rem;color:var(--fg-2)}
+  .picker li:first-child{border-top:0}
+  .picker li strong{color:var(--fg)}
   footer{padding:2.5rem 0;color:var(--fg-2);font-size:.9rem;display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;border-top:1px solid var(--line)}
   footer a{overflow-wrap:anywhere}
-  .grid>*,.two>*,.compare>*,.rules>*,.notes>*,.stats>*,.steps li>*{min-width:0}
+  .grid>*,.two>*,.compare>*,.rules>*,.notes>*,.stats>*,.steps li>*,.picker>*{min-width:0}
   @media (max-width:768px){
     section{padding:3rem 0}
-    .hero .grid,.two,.compare,.rules,.notes{grid-template-columns:1fr}
+    .hero .grid,.two,.compare,.rules,.notes,.picker{grid-template-columns:1fr}
     .stats{grid-template-columns:1fr 1fr}
     .flow .box{white-space:normal}
   }
@@ -189,6 +197,26 @@
       <div class="stat"><div class="n">88</div><div class="l">親継承だった件数。全て旧 CLI 0.145 由来</div></div>
     </div>
     <p>CLI 0.145 の <code>spawn_agent</code> にはモデル引数が無く、宣言しても子は親を継承していました。0.150 で引数が追加され、config の <code>[agents]</code> 既定値と合わせて CLI でも子が <code>terra / high</code> で走ることを確認しています。</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>親（あなたが話す相手）の設定は上位のままでよい</h2>
+    <p>Codex アプリ右下のモデル選択は <strong>5.6 Sol / Ultra のまま</strong>で運用します。この規範は「親を安くする」のではなく「親が起動する子を安くする」仕組みだからです。</p>
+    <div class="picker">
+      <figure>
+        <img src="assets/model-picker.png" alt="Codex アプリ右下のモデル選択。5.6 Sol Ultra と表示されている" width="640" height="312" loading="lazy">
+        <figcaption>Codex アプリのモデル選択。ここは変えない</figcaption>
+      </figure>
+      <div>
+        <ul>
+          <li><strong>親が high だと委譲しない。</strong>同じ3モジュール実装を親 high と親 ultra で走らせたところ、high は自分で全部書き（子 0本）、ultra は3本に分けて委譲した</li>
+          <li><strong>親が ultra でも子は terra / high に落ちる。</strong>規範と config の既定値が効くので、高いのは親の思考分だけ。8月の子182件は全て明示指定だった</li>
+          <li><strong>軽い単発作業だけ手動で High に下げる。</strong>1ファイルの修正や質問のように委譲の余地が無いときは、セッション単位で切り替える方が安い</li>
+        </ul>
+      </div>
+    </div>
   </div>
 </section>
 
