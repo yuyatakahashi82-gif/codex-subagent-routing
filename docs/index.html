@@ -114,8 +114,8 @@
       <span class="cta-sub">github.com/yuyatakahashi82-gif/codex-subagent-routing</span>
     </div>
     <div class="flow" aria-label="ルーティングの流れ">
-      <div class="row"><span class="box">親 sol / ultra</span><span class="arrow">→</span><span class="box hi">整形・検索</span><span class="arrow">→</span><span class="box">terra / medium</span></div>
-      <div class="row"><span class="box">親 sol / ultra</span><span class="arrow">→</span><span class="box hi">調査・実装</span><span class="arrow">→</span><span class="box">terra / high</span></div>
+      <div class="row"><span class="box">親 astra</span><span class="arrow">→</span><span class="box hi">整形・検索</span><span class="arrow">→</span><span class="box">terra / medium</span></div>
+      <div class="row"><span class="box">親 astra</span><span class="arrow">→</span><span class="box hi">調査・実装</span><span class="arrow">→</span><span class="box">terra / high</span></div>
       <div class="row"><span class="box">失敗1回</span><span class="arrow">→</span><span class="box hi">再試行</span><span class="arrow">→</span><span class="box">sol / high</span></div>
       <div class="row"><span class="box">完了報告前</span><span class="arrow">→</span><span class="box hi">検収 (別エージェント)</span><span class="arrow">→</span><span class="box">terra / high</span></div>
     </div>
@@ -165,9 +165,10 @@
           <tr><td>調査・実装（通常の開発作業）</td><td><code>terra / high</code></td></tr>
           <tr><td>難所、または一度失敗した再試行</td><td><code>sol / high</code></td></tr>
           <tr><td>高リスクな設計判断・最終ゲート</td><td><code>sol / ultra</code></td></tr>
+          <tr><td>推論強度の上げ方（モデルとは別に判断）</td><td><code>medium → high → xhigh</code>、terra は xhigh 上限</td></tr>
         </tbody>
       </table>
-      <p style="margin-top:1rem;font-size:.9rem">モデル名は作成者のプランに合わせた表記です。README の置換表で自分の環境に合わせます。</p>
+      <p style="margin-top:1rem;font-size:.9rem">親は <code>gpt-6-astra</code>、子は terra / sol の2モデルのみ。推論強度を先に上げ、それでも受入基準が未達なら sol へ。モデル名は作成者のプランに合わせた表記で、README の置換表で自分の環境に合わせます。</p>
     </div>
   </div>
 </section>
@@ -175,7 +176,7 @@
 <section>
   <div class="wrap">
     <h2>運用ルール8条の要旨</h2>
-    <p>全文は <code>ROUTING.md</code> にあります。6〜8 は Codex 自身に3巡検収させた文言で、削ると抜け道ができます。</p>
+    <p>全文は <code>ROUTING.md</code> にあります。6〜8 は Codex 自身に3巡検収させた文言で、削ると抜け道ができます。2026-09 の改定で「推論強度の選択基準」表を追加し、6 の (a)(b) を「terra での推論強度先行の再試行は sol の利用枠を消費しない」に改めました（Codex 2巡検収・全項目 PASS）。</p>
     <div class="rules">
       <div class="r"><h3>1. 明示指定の義務</h3><p>サブエージェント起動時は必ずモデルと推論強度を指定する。暗黙継承での起動は禁止。</p></div>
       <div class="r"><h3>2. routing 宣言</h3><p>起動1件につき1行、タスク・モデル・理由を応答本文に出す。省略不可。</p></div>
@@ -203,11 +204,11 @@
 <section>
   <div class="wrap">
     <h2>親（あなたが話す相手）の設定は上位のままでよい</h2>
-    <p>Codex アプリ右下のモデル選択は <strong>5.6 Sol / Ultra のまま</strong>で運用します。この規範は「親を安くする」のではなく「親が起動する子を安くする」仕組みだからです。</p>
+    <p>Codex アプリ右下のモデル選択は <strong>プランで最上位のモデルのまま</strong>で運用します（作成者は 2026年8月は 5.6 Sol / Ultra、2026年9月からは GPT-6 Astra）。この規範は「親を安くする」のではなく「親が起動する子を安くする」仕組みだからです。親を Astra にしても、子は規範どおり terra / sol に落ちることを rollout ログで確認しています。</p>
     <div class="picker">
       <figure>
         <img src="assets/model-picker.png" alt="Codex アプリ右下のモデル選択。5.6 Sol Ultra と表示されている" width="640" height="312" loading="lazy">
-        <figcaption>Codex アプリのモデル選択。ここは変えない</figcaption>
+        <figcaption>Codex アプリのモデル選択（2026年8月時点の画面）。ここは最上位のままにする</figcaption>
       </figure>
       <div>
         <ul>
